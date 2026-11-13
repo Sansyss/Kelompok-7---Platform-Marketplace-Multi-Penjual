@@ -1,0 +1,214 @@
+classDiagram
+    direction TB
+    class Pengguna {
+        <<abstract>>
+        -__username
+        -__password
+        -__nama
+        -__email
+        -__noHp
+        -__kota
+        +username
+        +cekPassword(password) bool
+        +peran* str
+        +daftarOrderTerkait()* tuple
+        +infoProfil() list
+    }
+    class Buyer {
+        -__alamat
+        -__keranjang : Keranjang
+        -__wishlist : list
+        -__daftarOrder : list
+        +peran str
+        +tambahWishlist(produk)
+        +hapusWishlist(produk)
+        +catatOrder(order)
+        +daftarOrderTerkait() tuple
+        +infoProfil() list
+    }
+    class Seller {
+        -__toko : Toko
+        +peran str
+        +buatToko(nama) Toko
+        +wajibPunyaToko() Toko
+        +daftarOrderTerkait() tuple
+        +infoProfil() list
+    }
+    class Toko {
+        -__nama
+        -__pemilik : Seller
+        -__daftarProduk : list
+        -__daftarOrder : list
+        -__daftarVoucher : dict
+        +#95;#95;iter#95;#95;() ProdukIterator
+        +tambahProduk(produk)
+        +cariProduk(id) Produk
+        +tambahVoucher(voucher)
+        +ambilVoucher(kode) Voucher
+        +orderBerstatus(status) generator
+    }
+    class Produk {
+        <<abstract>>
+        -__id
+        -__nama
+        -__harga
+        -__stok
+        -__kategori
+        -__terjual
+        -__daftarReview : list
+        +kurangiStok(jumlah)
+        +kembalikanStok(jumlah)
+        +tambahReview(review)
+        +rataRating float
+        +jenis* str
+        +beratTotal(jumlah)* int
+        +infoTambahan()* str
+    }
+    class ProdukFisik {
+        -__beratGram
+        +jenis str
+        +beratTotal(jumlah) int
+        +infoTambahan() str
+    }
+    class ProdukDigital {
+        -__formatFile
+        +jenis str
+        +beratTotal(jumlah) int
+        +infoTambahan() str
+    }
+    class Review {
+        -__buyer : Buyer
+        -__rating
+        -__komentar
+    }
+    class Keranjang {
+        -__items : dict
+        +#95;#95;iter#95;#95;() generator
+        +tambah(produk, jumlah)
+        +ubahJumlah(id, jumlah)
+        +hapus(id)
+        +total int
+        +kelompokPerToko() dict
+    }
+    class ItemKeranjang {
+        -__produk : Produk
+        -__jumlah
+        +subtotal int
+    }
+    class Order {
+        -__id
+        -__status : StatusOrder
+        -__items : list
+        -__kurir : Kurir
+        -__voucher : Voucher
+        -__ongkir
+        -__potongan
+        -__riwayat : list
+        +#95;#95;iter#95;#95;() iterator
+        +subtotal int
+        +total int
+        +ubahStatus(statusBaru)
+        +statusBerikutnya() tuple
+    }
+    class ItemOrder {
+        -__namaProduk
+        -__harga
+        -__jumlah
+        +subtotal int
+    }
+    class StatusOrder {
+        <<enumeration>>
+        MENUNGGU
+        DIPROSES
+        DIKIRIM
+        SELESAI
+        DIBATALKAN
+    }
+    class Voucher {
+        <<abstract>>
+        -__kode
+        -__minBelanja
+        -__kuota
+        +validasi(subtotal)
+        +jenis* str
+        +hitungPotongan(subtotal, ongkir)* int
+        +deskripsi()* str
+    }
+    class VoucherPersen {
+        +hitungPotongan(subtotal, ongkir) int
+    }
+    class VoucherNominal {
+        +hitungPotongan(subtotal, ongkir) int
+    }
+    class VoucherGratisOngkir {
+        +hitungPotongan(subtotal, ongkir) int
+    }
+    class Kurir {
+        <<abstract>>
+        +nama* str
+        +estimasi* str
+        +hitungOngkir(berat, asal, tujuan)* int
+    }
+    class KurirReguler {
+        +hitungOngkir(berat, asal, tujuan) int
+    }
+    class KurirEkspres {
+        +hitungOngkir(berat, asal, tujuan) int
+    }
+    class AmbilDiToko {
+        +hitungOngkir(berat, asal, tujuan) int
+    }
+    class Marketplace {
+        -__pengguna : dict
+        -__daftarToko : list
+        -__daftarOrder : list
+        +registrasiBuyer(...) Buyer
+        +registrasiSeller(...) Seller
+        +login(username, password) Pengguna
+        +#95;#95;iter#95;#95;() KatalogIterator
+        +cariProduk(kataKunci, kategori, hargaMin, hargaMax, urutan) list
+        +checkout(buyer, pilihan) list
+        +laporanPenjualan(seller) dict
+        +eksporCsv(seller) str
+    }
+    class KatalogIterator {
+        -__daftarToko
+        -__saring
+        -__indeksToko
+        +#95;#95;iter#95;#95;()
+        +#95;#95;next#95;#95;() Produk
+    }
+    class ProdukIterator {
+        -__daftarProduk
+        -__indeks
+        +#95;#95;iter#95;#95;()
+        +#95;#95;next#95;#95;() Produk
+    }
+    Pengguna <|-- Buyer
+    Pengguna <|-- Seller
+    Produk <|-- ProdukFisik
+    Produk <|-- ProdukDigital
+    Voucher <|-- VoucherPersen
+    Voucher <|-- VoucherNominal
+    Voucher <|-- VoucherGratisOngkir
+    Kurir <|-- KurirReguler
+    Kurir <|-- KurirEkspres
+    Kurir <|-- AmbilDiToko
+    Seller "1" --> "0..1" Toko : memiliki
+    Toko "1" *-- "*" Produk
+    Toko "1" o-- "*" Voucher
+    Produk "1" *-- "*" Review
+    Buyer "1" *-- "1" Keranjang
+    Keranjang "1" *-- "*" ItemKeranjang
+    ItemKeranjang --> Produk
+    Order "1" *-- "*" ItemOrder
+    Order --> StatusOrder
+    Order --> Kurir
+    Order --> Voucher
+    Buyer "1" --> "*" Order
+    Toko "1" --> "*" Order
+    Marketplace o-- Pengguna
+    Marketplace o-- Toko
+    Marketplace ..> KatalogIterator : membuat
+    Toko ..> ProdukIterator : membuat
+    KatalogIterator ..> ProdukIterator : memakai

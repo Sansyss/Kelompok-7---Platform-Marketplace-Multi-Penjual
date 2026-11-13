@@ -1,0 +1,28 @@
+classDiagram
+    direction TB
+    class Exception
+    class MarketplaceError
+    class ValidasiError
+    class AutentikasiError
+    class AksesDitolakError
+    class DataTidakDitemukanError
+    class StokTidakCukupError {
+        +namaProduk
+        +stokTersedia
+        +diminta
+    }
+    class KeranjangKosongError
+    class VoucherTidakValidError
+    class StatusOrderError {
+        +statusLama
+        +statusBaru
+    }
+    Exception <|-- MarketplaceError
+    MarketplaceError <|-- ValidasiError
+    MarketplaceError <|-- AutentikasiError
+    MarketplaceError <|-- AksesDitolakError
+    MarketplaceError <|-- DataTidakDitemukanError
+    MarketplaceError <|-- StokTidakCukupError
+    MarketplaceError <|-- KeranjangKosongError
+    MarketplaceError <|-- VoucherTidakValidError
+    MarketplaceError <|-- StatusOrderError
